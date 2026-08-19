@@ -15,11 +15,38 @@ function normalizeUrl(value){
 
 async function connect(){
   const selectedUserName = document.getElementById('cfg-username')?.value?.trim() || '';
-  const selectedUser = getUserByName(selectedUserName);
+  let selectedUser = getUserByName(selectedUserName);
   const password = document.getElementById('cfg-password')?.value.trim() || '';
-  if(!selectedUser){ showErr('Nombre de usuario incorrecto.'); return; }
+  if(!selectedUserName){ showErr('Ingresa tu usuario o correo.'); return; }
   if(!password){ showErr('Ingresa la contraseña de usuario.'); return; }
-  if(selectedUser.password !== password){ showErr('Contraseña incorrecta.'); return; }
+
+  let sharedAccount = null;
+  if(isSupabaseConfigured()){
+    try{
+      sharedAccount = await signInWithSharedAccount(selectedUserName, password);
+      if(sharedAccount){
+        const profile = sharedAccount.profile || {};
+        selectedUser = {
+          ...selectedUser,
+          ...profile,
+          name: profile.username || profile.full_name || profile.email || selectedUserName,
+          username: profile.username || profile.email || selectedUserName,
+          email: profile.email || sharedAccount.user.email,
+          role: profile.role || 'cliente',
+          site: profile.site || 'todas',
+          sections: Array.isArray(profile.sections) && profile.sections.length ? profile.sections : ['environmental']
+        };
+      }
+    }catch(error){
+      if(!selectedUser){
+        showErr('No se pudo validar la cuenta compartida: ' + (error.message || error));
+        return;
+      }
+    }
+  }
+
+  if(!selectedUser){ showErr('Nombre de usuario o correo incorrecto.'); return; }
+  if(!sharedAccount && selectedUser.password !== password){ showErr('Contraseña incorrecta.'); return; }
   const hasEnvironmental = Array.isArray(selectedUser.sections) && selectedUser.sections.includes('environmental');
   let url = '';
   let token = '';

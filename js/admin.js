@@ -129,7 +129,14 @@ function populateLoginDefaults(){
 
 function renderLoginUsers(){
   const select = document.getElementById('cfg-user');
-  if(!select) return;
+  const input = document.getElementById('cfg-username');
+  if(!select){
+    if(input && !input.value && ADMIN_CONFIG.users?.length){
+      const firstUser = ADMIN_CONFIG.users[0];
+      input.value = firstUser.name || firstUser.username || `${firstUser.firstName||''} ${firstUser.lastName||''}`.trim();
+    }
+    return;
+  }
   if(!ADMIN_CONFIG.users?.length){
     select.innerHTML = '<option value="">Sin usuarios definidos</option>';
     return;
@@ -1948,7 +1955,8 @@ function getUserByName(name){
     const username = normalizeUserName(u.username);
     const displayName = normalizeUserName(u.name);
     const fullName = normalizeUserName(`${u.firstName||''} ${u.lastName||''}`.trim());
-    return username === normalized || displayName === normalized || fullName === normalized;
+    const email = normalizeUserName(u.email);
+    return username === normalized || displayName === normalized || fullName === normalized || email === normalized;
   }) || null;
 }
 

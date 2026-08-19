@@ -5,6 +5,7 @@
 const ADMIN_DATA_KEY = 'er_admin_conf';
 const ADMIN_TOKEN_KEY = 'er_admin_token';
 const ADMIN_CODE = 'Pleites1402';
+const PUBLIC_GEOPORTAL_CONFIG_URL = 'config/geoportal.json';
 let IS_ADMIN = false;
 let ACTIVE_ADMIN_SECTION = '';
 let ADMIN_UI_STATE = { showNewSiteForm: false, showNewUserForm: false, showNewGeoportalLayerForm: false, showGeoportalConfigForm: false, editSiteIndex: null, editUserIndex: null, editTdrIndex: null, editPlanningIndex: null, editConsultoriaTotalIndex: null, showTdrList: false, showPlanningList: false, showReportsList: false, showAccountingList: false };
@@ -93,7 +94,25 @@ async function verifyEarthRangerConnection(url, token){
   throw lastError || new Error('No se pudo validar la conexión con EarthRanger.');
 }
 
-function initAdmin(){
+async function loadPublicGeoportalConfig(){
+  try{
+    const response = await fetch(PUBLIC_GEOPORTAL_CONFIG_URL, { cache:'no-store' });
+    if(!response.ok) return;
+    const publicConfig = await response.json();
+    if(!publicConfig || typeof publicConfig !== 'object') return;
+    const hasPublicLayers = (Array.isArray(publicConfig.layers) && publicConfig.layers.length > 0) || Boolean(publicConfig.url);
+    if(!hasPublicLayers) return;
+    ADMIN_CONFIG.geoportal = {
+      ...ADMIN_CONFIG.geoportal,
+      ...publicConfig,
+      layers: Array.isArray(publicConfig.layers) ? publicConfig.layers : ADMIN_CONFIG.geoportal.layers
+    };
+  }catch(error){
+    console.debug('No se pudo cargar la configuración pública del geoportal:', error);
+  }
+}
+
+async function initAdmin(){
   const saved = localStorage.getItem(ADMIN_DATA_KEY);
   if(saved){
     try{ const stored = JSON.parse(saved); if(stored) ADMIN_CONFIG = {...ADMIN_CONFIG, ...stored}; }catch(e){ console.warn('Admin config inválida',e); }
@@ -102,6 +121,7 @@ function initAdmin(){
   ADMIN_CONFIG.geoportal = {...ADMIN_CONFIG.geoportal};
   const token = sessionStorage.getItem(ADMIN_TOKEN_KEY) || localStorage.getItem(ADMIN_TOKEN_KEY);
   if(token){ ADMIN_CONFIG.token = token; }
+  await loadPublicGeoportalConfig();
   const savedIsAdmin = sessionStorage.getItem('er_is_admin') === 'true';
   const savedUser = sessionStorage.getItem('er_user');
   if(savedIsAdmin && savedUser){
@@ -2068,7 +2088,7 @@ function openAdminFromLogin(){
 }
 
 window.addEventListener('DOMContentLoaded',()=>{
-  initAdmin();
+  initAdmin().then(()=>{ renderAdminPanel(); });
   const adminInput = document.getElementById('cfg-admin-code');
   if(adminInput){
     adminInput.addEventListener('blur',checkAdminCode);

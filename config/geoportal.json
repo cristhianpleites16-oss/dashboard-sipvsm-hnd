@@ -1,0 +1,9 @@
+{
+  "name": "Geoportal ICF Honduras",
+  "layerType": "wms",
+  "url": "",
+  "layerName": "",
+  "attribution": "© ICF Honduras",
+  "proxy": "",
+  "layers": []
+}

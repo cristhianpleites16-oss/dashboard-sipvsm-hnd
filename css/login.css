@@ -1,5 +1,5 @@
 #login-screen{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;}
-#login-bg{position:absolute;inset:0;background:url('../assets/background-ambiental.jpg') center/cover no-repeat;filter:brightness(0.35) saturate(0.8);z-index:-1;background-color:var(--bg);} 
+#login-bg{position:absolute;inset:0;background:url('../bg_area.jpg') center/cover no-repeat;filter:brightness(0.35) saturate(0.8);z-index:-1;background-color:var(--bg);}
 #login-box{position:relative;background:none;border:none;border-radius:16px;padding:36px 40px;width:470px;max-width:95vw;box-shadow:none;backdrop-filter:none;display:flex;flex-direction:column;align-items:center;overflow:visible;text-align:center;}
 .login-box>*:not(.login-logos){position:relative;z-index:0;}
 .login-logos{position:relative;display:flex;align-items:center;justify-content:center;gap:20px;width:100%;max-width:520px;margin-bottom:14px;opacity:.95;}

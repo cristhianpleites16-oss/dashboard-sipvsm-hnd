@@ -1,7 +1,7 @@
 #welcome-screen{position:fixed;inset:0;z-index:400;display:none;flex-direction:column;align-items:center;justify-content:flex-start;background:
 	linear-gradient(180deg, rgba(248,250,252,0.80), rgba(238,246,251,0.80) 50%, rgba(231,242,249,0.85) 100%),
 	radial-gradient(circle at 50% 18%, rgba(255,255,255,0.72), rgba(255,255,255,0) 55%),
-  url("../assets/background-ambiental.jpg") center/cover no-repeat;padding:32px 20px 42px;overflow-y:auto;}
+  url("../bg_area.jpg") center/cover no-repeat;padding:32px 20px 42px;overflow-y:auto;}
 #welcome-screen.visible{display:flex;}
 .wl-hero{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;max-width:1180px;gap:32px;padding:24px 0 12px;position:relative;}
 .wl-hero-copy{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:22px;max-width:620px;}

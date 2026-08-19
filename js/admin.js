@@ -1249,6 +1249,7 @@ function renderMapsSection(){
           <div class="admin-field"><label>Proxy CORS (opcional)</label><input id="new-geo-layer-proxy" type="text" placeholder="https://mi-proxy.com/?url=" value="${esc(geo.proxy||getDefaultLocalGeoportalProxy())}"/></div>
           <div class="admin-actions" style="gap:10px; margin-top:10px;">
             <button class="s-btn primary" onclick="saveNewGeoportalLayer()">Guardar capa</button>
+            <button class="s-btn ghost" onclick="testNewGeoportalConnection()">Probar conexión</button>
             <button class="s-btn ghost" onclick="cancelNewGeoportalLayerForm()">Cancelar</button>
           </div>
         </div>
@@ -1631,6 +1632,33 @@ function saveNewGeoportalLayer(){
   persistAdminData();
   ADMIN_UI_STATE.showNewGeoportalLayerForm = false;
   renderAdminPanel();
+}
+
+async function testNewGeoportalConnection(){
+  const url = normalizeUrl(document.getElementById('new-geo-layer-url')?.value.trim() || '');
+  const layerType = document.getElementById('new-geo-layer-type')?.value || 'wms';
+  const layerName = document.getElementById('new-geo-layer-wms-name')?.value.trim() || '';
+  const username = document.getElementById('new-geo-layer-username')?.value.trim() || '';
+  const password = document.getElementById('new-geo-layer-password')?.value || '';
+  const configuredProxy = document.getElementById('new-geo-layer-proxy')?.value.trim() || '';
+  const proxy = isLocalGeoportalProxy(configuredProxy) && !isLocalApp() ? '' : configuredProxy;
+
+  if(!url){ alert('Ingrese la URL de la capa.'); return; }
+  if(layerType === 'wms' && !layerName){ alert('Ingrese el nombre de la capa WMS.'); return; }
+
+  const testUrl = buildGeoportalTestUrl({url, layerType, layerName});
+  const authUrl = username && password ? addBasicAuthToUrl(testUrl, username, password) : testUrl;
+  const requestUrl = wrapProxyUrl(authUrl, proxy);
+  try{
+    const response = await fetch(requestUrl, {method:'GET', mode:'cors'});
+    if(!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);
+    alert('Conexión al geoportal verificada con éxito.');
+  }catch(error){
+    const localProxyNote = configuredProxy && isLocalGeoportalProxy(configuredProxy) && !isLocalApp()
+      ? '\nEl proxy local no está disponible para un sitio publicado. Usa un proxy público HTTPS.'
+      : '';
+    alert('Fallo al conectar con el geoportal: ' + (error.message || error) + localProxyNote);
+  }
 }
 
 function removeGeoportalLayer(index){

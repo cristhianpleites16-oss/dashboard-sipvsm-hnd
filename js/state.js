@@ -47,6 +47,7 @@ const MUNICIPALITY_OPTIONS = {
 };
 const SIPVSM_OPTIONS = ['Todos','Santa Fe','Iriona-Limón','Trujillo','Balfate'];
 const MAP_LAYERS = {
+  dark:'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
   satellite:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
   topo:'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
   streets:'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'

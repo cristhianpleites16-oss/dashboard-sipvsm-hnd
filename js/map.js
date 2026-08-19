@@ -156,8 +156,8 @@ function renderMapModuleSidebar(context='map'){
   const layerContainerId = context === 'dashboard' ? 'dashboard-map-sidebar-layers' : 'map-sidebar-layers';
   const container = document.getElementById(layerContainerId);
   if(!container) return;
-  const keys = ['satellite','topo','streets'].filter(key=>MAP_LAYERS?.[key]);
-  const labels = { satellite:'Satélite', topo:'Topográfico', streets:'Calles' };
+  const keys = ['dark','satellite','topo','streets'].filter(key=>MAP_LAYERS?.[key]);
+  const labels = { dark:'Oscuro', satellite:'Satélite', topo:'Topográfico', streets:'Calles' };
   container.innerHTML = keys.map(k=>{
     const label = labels[k] || k;
     return `<label style="display:block;margin-bottom:6px;"><input type="radio" name="${context}-base-layer" value="${k}" ${CURRENT_MAP_LAYER===k?'checked':''}/> ${label}</label>`;

@@ -42,3 +42,45 @@ async function signInWithSharedAccount(identifier, password){
   if(profileResult.error && !isMissingProfilesTable(profileResult.error)) throw profileResult.error;
   return {user, profile: profileResult.data || profile || {email:user.email, username:identifier}};
 }
+
+async function loadSharedEarthRangerSites(){
+  if(!SUPABASE_CLIENT) return [];
+  const result = await SUPABASE_CLIENT
+    .from('earthranger_sites')
+    .select('id,name,external_id,url,token,regional,days')
+    .order('name');
+  if(result.error){
+    if(['42P01','PGRST205'].includes(result.error.code)) return [];
+    throw result.error;
+  }
+  return result.data || [];
+}
+
+async function upsertSharedEarthRangerSite(site){
+  if(!SUPABASE_CLIENT) return null;
+  const payload = {
+    ...(site.id && !String(site.id).startsWith('site-') ? {id:site.id} : {}),
+    name: site.name,
+    external_id: site.externalId || null,
+    url: site.url,
+    token: site.token,
+    regional: site.regional || site.name || null,
+    days: Number(site.days) || 30,
+    updated_at: new Date().toISOString()
+  };
+  const result = await SUPABASE_CLIENT.from('earthranger_sites').upsert(payload, {onConflict:'name'}).select().single();
+  if(result.error) throw result.error;
+  return result.data;
+}
+
+async function updateSharedProfileByEmail(profile){
+  if(!SUPABASE_CLIENT || !profile?.email) return null;
+  const result = await SUPABASE_CLIENT
+    .from('profiles')
+    .update({username:profile.username || null, full_name:profile.fullName || '', role:profile.role || 'cliente', site:profile.site || 'todas', sections:profile.sections || ['environmental']})
+    .eq('email', profile.email)
+    .select()
+    .maybeSingle();
+  if(result.error && !isMissingProfilesTable(result.error)) throw result.error;
+  return result.data || null;
+}

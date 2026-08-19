@@ -1433,6 +1433,7 @@ function saveIntegrationSite(index){
   ADMIN_CONFIG.sites[index].externalId = externalId;
   ADMIN_CONFIG.sites[index].days = days;
   persistAdminData();
+  upsertSharedEarthRangerSite(ADMIN_CONFIG.sites[index]).catch(error=>console.warn('No se pudo sincronizar el sitio en Supabase:', error.message || error));
   ADMIN_UI_STATE.editSiteIndex = null;
   renderAdminPanel();
 }
@@ -1449,7 +1450,7 @@ function editAdminUser(index){
   renderAdminPanel();
 }
 
-function saveAdminUser(index){
+async function saveAdminUser(index){
   const firstName = document.getElementById(`edit-user-firstname-${index}`)?.value.trim();
   const username = document.getElementById(`edit-user-username-${index}`)?.value.trim();
   const email = document.getElementById(`edit-user-email-${index}`)?.value.trim();
@@ -1476,6 +1477,9 @@ function saveAdminUser(index){
   ADMIN_CONFIG.users[index].sections = sections;
   ADMIN_CONFIG.users[index].site = site || 'todas';
   persistAdminData();
+  try{
+    await updateSharedProfileByEmail({email, username, fullName:firstName, role:role || 'cliente', site:site || 'todas', sections});
+  }catch(error){ console.warn('No se pudo sincronizar el perfil en Supabase:', error.message || error); }
   ADMIN_UI_STATE.editUserIndex = null;
   renderLoginUsers();
   renderAdminPanel();
@@ -1546,7 +1550,12 @@ async function saveNewIntegrationSite(){
   if(token) ADMIN_CONFIG.token = token;
   try{
     await verifyEarthRangerConnection(url, token);
-    ADMIN_CONFIG.sites.push({name, externalId, url: url || ADMIN_CONFIG.url, token: token || ADMIN_CONFIG.token, id:`site-${Date.now()}`});
+    const newSite = {name, externalId, url: url || ADMIN_CONFIG.url, token: token || ADMIN_CONFIG.token, id:`site-${Date.now()}`};
+    ADMIN_CONFIG.sites.push(newSite);
+    if(isSupabaseConfigured()){
+      try{ await upsertSharedEarthRangerSite(newSite); }
+      catch(error){ console.warn('Sitio guardado localmente, pero no se pudo sincronizar con Supabase:', error.message || error); }
+    }
     persistAdminData();
     sessionStorage.setItem(ADMIN_TOKEN_KEY, ADMIN_CONFIG.token);
     populateLoginDefaults();

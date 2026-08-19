@@ -21,6 +21,7 @@ async function connect(){
   if(!password){ showErr('Ingresa la contraseña de usuario.'); return; }
 
   let sharedAccount = null;
+  let sharedSites = [];
   if(isSupabaseConfigured()){
     try{
       sharedAccount = await signInWithSharedAccount(selectedUserName, password);
@@ -36,6 +37,20 @@ async function connect(){
           site: profile.site || 'todas',
           sections: Array.isArray(profile.sections) && profile.sections.length ? profile.sections : ['environmental']
         };
+        try{ sharedSites = await loadSharedEarthRangerSites(); }catch(error){
+          if(!selectedUser.site || selectedUser.site === 'todas') throw error;
+        }
+        if(sharedSites.length){
+          ADMIN_CONFIG.sites = sharedSites.map(site=>({
+            id:site.id,
+            name:site.name,
+            externalId:site.external_id || '',
+            url:site.url,
+            token:site.token,
+            regional:site.regional || site.name,
+            days:site.days || ADMIN_CONFIG.days
+          }));
+        }
       }
     }catch(error){
       if(!selectedUser){
@@ -57,11 +72,18 @@ async function connect(){
     url = adminUrl;
     token = adminToken;
     if(selectedUser.site && selectedUser.site!=='todas'){
-      const site = (ADMIN_CONFIG.sites||[]).find(s=>s.name===selectedUser.site || s.externalId===selectedUser.site);
+      const site = sharedSites.find(s=>s.name===selectedUser.site || s.external_id===selectedUser.site)
+        || (ADMIN_CONFIG.sites||[]).find(s=>s.name===selectedUser.site || s.externalId===selectedUser.site);
       if(site && site.url){ url = normalizeUrl(site.url); }
       if(site && site.token){ token = (site.token||'').trim(); }
+      if(site && site.regional) regional = site.regional;
+    } else if(sharedSites.length === 1 && sharedAccount){
+      const site = sharedSites[0];
+      url = normalizeUrl(site.url);
+      token = (site.token || '').trim();
+      regional = site.regional || site.name;
     }
-    regional = selectedUser.site && selectedUser.site !== 'todas' ? selectedUser.site : (ADMIN_CONFIG.regional || '');
+    if(!regional) regional = selectedUser.site && selectedUser.site !== 'todas' ? selectedUser.site : (ADMIN_CONFIG.regional || '');
     if(!url||!token){ showErr('El usuario de Gestión Ambiental requiere un sitio EarthRanger configurado.'); return; }
   }
   const btn=document.getElementById('btn-connect');
@@ -71,6 +93,7 @@ async function connect(){
     if(hasEnvironmental){
       const conn = await verifyEarthRangerConnection(url, token);
       setCurrentUser(selectedUserName);
+      CURRENT_USER = {...CURRENT_USER, ...selectedUser};
       sessionStorage.setItem('er_session_active','true');
       localStorage.setItem('er_session_active','true');
       sessionStorage.setItem('er_admin_token', conn.token);

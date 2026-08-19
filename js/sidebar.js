@@ -22,9 +22,8 @@ function ensureGeographicFilterControls(){
   const categoryList = document.getElementById('cat-list');
   if(!sidebar || !categoryList) return;
   const searchInput = document.getElementById('search-input');
-  if(searchInput) searchInput.placeholder='Buscar tipo de reporte...';
-  const searchTitle = searchInput?.closest('div')?.parentElement?.querySelector('.s-title');
-  if(searchTitle) searchTitle.textContent='Tipo de reporte';
+  const searchSection = searchInput?.closest('div')?.parentElement;
+  if(searchSection) searchSection.remove();
   const categoryTitle = categoryList.closest('div')?.querySelector('.s-title');
   if(categoryTitle) categoryTitle.textContent='Categoría de reportes';
   const siteFilter = document.getElementById('site-filter');
@@ -46,7 +45,7 @@ function ensureGeographicFilterControls(){
 
 function applyFilters(){
   ensureGeographicFilterControls();
-  const q=document.getElementById('search-input').value.toLowerCase();
+  const q=(document.getElementById('search-input')?.value || '').toLowerCase();
   const ds=document.getElementById('date-start').value;
   const de=document.getElementById('date-end').value;
   const siteText=document.getElementById('site-filter')?.value.trim() || '';
@@ -74,7 +73,8 @@ function applyFilters(){
 }
 function clearFilters(){
   ensureGeographicFilterControls();
-  document.getElementById('search-input').value='';
+  const searchInput = document.getElementById('search-input');
+  if(searchInput) searchInput.value='';
   const siteFilter=document.getElementById('site-filter');
   if(siteFilter) siteFilter.value='';
   document.getElementById('date-start').value='';

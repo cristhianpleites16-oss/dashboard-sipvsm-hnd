@@ -1,7 +1,7 @@
 #charts-panel{background:var(--surface);border-left:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column;backdrop-filter:blur(12px);padding-top:0;border-radius:20px;}
 .chart-card{width:100%;box-sizing:border-box;margin:0 0 10px;padding:12px 13px;border:1px solid var(--border);border-radius:16px;background:var(--surface2);box-shadow:0 12px 30px rgba(0,0,0,.25);}
 .chart-card:first-child{margin-top:0;}
-.chart-card h3{font-family:'Barlow Condensed',sans-serif;font-size:.72rem;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;}
+.chart-card h3{font-family:'Barlow Condensed',sans-serif;font-size:.72rem;font-weight:700;color:var(--teal-light);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;}
 .chart-wrap{position:relative;height:140px;}
 .chart-wrap.md{height:160px;}
 .dashboard-analytics{display:flex;flex-direction:column;gap:12px;}

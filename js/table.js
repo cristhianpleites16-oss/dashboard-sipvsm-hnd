@@ -3,6 +3,8 @@
 // ============================================================
 function toggleTable(){
   TABLE_VISIBLE=!TABLE_VISIBLE;
+  const main = document.getElementById('main');
+  if(main) main.classList.toggle('table-only', TABLE_VISIBLE);
   document.getElementById('table-panel').classList.toggle('visible',TABLE_VISIBLE);
   document.getElementById('toggle-table').classList.toggle('table-active',TABLE_VISIBLE);
   document.getElementById('toggle-table').textContent=TABLE_VISIBLE?'Cerrar':'Tabla';

@@ -26,21 +26,29 @@ async function loadData(silent=false){
     const since=new Date(); since.setDate(since.getDate()-CONFIG.days);
     const sinceStr=since.toISOString().split('T')[0];
     let events=[],page=1,hasMore=true;
+    ALL_EVENTS=[];
+    FILTERED_EVENTS=[];
     while(hasMore){
       if(!silent) setLoading(true,`Cargando eventos página ${page}...`);
       const d=await erFetch(`/api/v1.0/activity/events/?page_size=200&page=${page}&date_after=${sinceStr}&include_details=true`);
       const res=(d.data&&d.data.results)||d.results||[];
       events=events.concat(res);
+      ALL_EVENTS=[...events];
+      // Render incremental so users can start seeing data before full download finishes.
+      processData({ incremental:true });
+      if(!silent){
+        setStatus(true,`Cargando eventos... ${ALL_EVENTS.length} registros`);
+      }
+      await new Promise(resolve=>requestAnimationFrame(()=>resolve()));
       const nxt=(d.data&&d.data.next)||d.next;
       if(nxt&&page<20) page++; else hasMore=false;
     }
-    ALL_EVENTS=events;
+
     if(!silent) setLoading(true,'Cargando patrullajes...');
     try{
       const pd=await erFetch(`/api/v1.0/activity/patrols/?page_size=200&date_after=${sinceStr}`);
       ALL_PATROLS=(pd.data&&pd.data.results)||pd.results||[];
     }catch(e){ ALL_PATROLS=[]; }
-    if(typeof filterEventsByCurrentUser==='function') filterEventsByCurrentUser();
     processData();
     setStatus(true,`${ALL_EVENTS.length} eventos · ${ALL_PATROLS.length} patrullajes`);
     document.getElementById('last-upd').textContent='Act: '+new Date().toLocaleTimeString('es-HN');
@@ -53,11 +61,12 @@ async function loadData(silent=false){
   }
 }
 
-function processData(){
+function processData(options={}){
+  const incremental = Boolean(options.incremental);
   FILTERED_EVENTS=[...ALL_EVENTS];
   if(typeof filterEventsByCurrentUser==='function') filterEventsByCurrentUser();
   buildCatList();
-  buildGeographicFilterOptions();
+  if(!incremental) buildGeographicFilterOptions();
   renderAll();
 }
 

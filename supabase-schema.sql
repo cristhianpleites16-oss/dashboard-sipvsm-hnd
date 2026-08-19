@@ -12,11 +12,21 @@ create table if not exists public.profiles (
 
 alter table public.profiles enable row level security;
 
-drop policy if exists "Authenticated users can read profiles" on public.profiles;
-create policy "Authenticated users can read profiles"
-  on public.profiles for select
-  to authenticated
-  using (true);
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public'
+      and tablename = 'profiles'
+      and policyname = 'Authenticated users can read profiles'
+  ) then
+    create policy "Authenticated users can read profiles"
+      on public.profiles for select
+      to authenticated
+      using (true);
+  end if;
+end;
+$$;
 
 create or replace function public.handle_new_user()
 returns trigger
@@ -36,7 +46,16 @@ begin
 end;
 $$;
 
-drop trigger if exists on_auth_user_created on auth.users;
-create trigger on_auth_user_created
-  after insert on auth.users
-  for each row execute procedure public.handle_new_user();
+do $$
+begin
+  if not exists (
+    select 1 from pg_trigger
+    where tgname = 'on_auth_user_created'
+      and tgrelid = 'auth.users'::regclass
+  ) then
+    create trigger on_auth_user_created
+      after insert on auth.users
+      for each row execute procedure public.handle_new_user();
+  end if;
+end;
+$$;

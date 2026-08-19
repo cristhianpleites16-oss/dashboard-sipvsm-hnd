@@ -43,15 +43,12 @@ async function signInWithSharedAccount(identifier, password){
 
 async function loadSharedEarthRangerSites(){
   if(!SUPABASE_CLIENT) return [];
-  const result = await SUPABASE_CLIENT
-    .from('earthranger_sites')
-    .select('id,name,external_id,url,token,regional,days')
-    .order('name');
+  const result = await SUPABASE_CLIENT.rpc('get_my_earthranger_sites');
   if(result.error){
-    if(['42P01','PGRST205'].includes(result.error.code)) return [];
+    if(['42P01','PGRST205','42883'].includes(result.error.code)) return [];
     throw result.error;
   }
-  return result.data || [];
+  return (result.data || []).sort((left,right)=>String(left.name).localeCompare(String(right.name)));
 }
 
 async function upsertSharedEarthRangerSite(site){

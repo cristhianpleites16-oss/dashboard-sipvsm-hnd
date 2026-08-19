@@ -61,6 +61,31 @@ create table if not exists public.user_site_access (
   primary key (user_id, site_id)
 );
 
+create or replace function public.get_my_earthranger_sites()
+returns table (
+  id uuid,
+  name text,
+  external_id text,
+  url text,
+  token text,
+  regional text,
+  days integer
+)
+language sql
+security definer
+set search_path = public
+as $$
+  select s.id, s.name, s.external_id, s.url, s.token, s.regional, s.days
+  from public.earthranger_sites s
+  join public.profiles p on p.id = auth.uid()
+  where p.site = s.name
+     or p.site = s.external_id
+     or (p.role = 'admin' and p.site = 'todas');
+$$;
+
+revoke all on function public.get_my_earthranger_sites() from public;
+grant execute on function public.get_my_earthranger_sites() to authenticated;
+
 alter table public.earthranger_sites enable row level security;
 alter table public.user_site_access enable row level security;
 

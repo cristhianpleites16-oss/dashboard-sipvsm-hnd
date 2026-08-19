@@ -3,6 +3,17 @@
 // ============================================================
 function showLogin(){ showScreen('login'); }
 
+function togglePasswordVisibility(){
+  const input = document.getElementById('cfg-password');
+  const button = document.getElementById('toggle-password');
+  if(!input || !button) return;
+  const showing = input.type === 'text';
+  input.type = showing ? 'password' : 'text';
+  button.textContent = showing ? '👁' : '🙈';
+  button.setAttribute('aria-label', showing ? 'Mostrar contraseña' : 'Ocultar contraseña');
+  button.title = showing ? 'Mostrar contraseña' : 'Ocultar contraseña';
+}
+
 function normalizeUrl(value){
   if(!value) return '';
   let url = value.trim();
@@ -119,3 +130,7 @@ async function connect(){
   finally{ btn.textContent='Ingresar al Sistema →'; btn.disabled=false; }
 }
 function showErr(m){ const el=document.getElementById('cfg-error'); el.textContent=m; el.style.display='block'; }
+
+window.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('toggle-password')?.addEventListener('click', togglePasswordVisibility);
+});

@@ -1617,6 +1617,11 @@ function saveNewGeoportalLayer(){
     alert('Ingrese el nombre de la capa WMS.');
     return;
   }
+  const validationError = validateGeoportalConnectivityOptions({ url, proxy });
+  if(validationError){
+    alert(validationError);
+    return;
+  }
   if(!ADMIN_CONFIG.geoportal) ADMIN_CONFIG.geoportal = {};
   if(!Array.isArray(ADMIN_CONFIG.geoportal.layers)) ADMIN_CONFIG.geoportal.layers = [];
   ADMIN_CONFIG.geoportal.layers.push({
@@ -1645,6 +1650,11 @@ async function testNewGeoportalConnection(){
 
   if(!url){ alert('Ingrese la URL de la capa.'); return; }
   if(layerType === 'wms' && !layerName){ alert('Ingrese el nombre de la capa WMS.'); return; }
+  const validationError = validateGeoportalConnectivityOptions({ url, proxy: configuredProxy });
+  if(validationError){
+    alert(validationError);
+    return;
+  }
 
   const testUrl = buildGeoportalTestUrl({url, layerType, layerName});
   const authUrl = username && password ? addBasicAuthToUrl(testUrl, username, password) : testUrl;
@@ -1654,10 +1664,13 @@ async function testNewGeoportalConnection(){
     if(!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);
     alert('Conexión al geoportal verificada con éxito.');
   }catch(error){
+    const message = (error instanceof TypeError && /failed to fetch/i.test(error.message || ''))
+      ? 'No se pudo conectar al geoportal (Failed to fetch). Verifica que la URL sea HTTPS, que el servidor permita CORS y que el certificado SSL sea válido.'
+      : (error.message || error);
     const localProxyNote = configuredProxy && isLocalGeoportalProxy(configuredProxy) && !isLocalApp()
       ? '\nEl proxy local no está disponible para un sitio publicado. Usa un proxy público HTTPS.'
       : '';
-    alert('Fallo al conectar con el geoportal: ' + (error.message || error) + localProxyNote);
+    alert('Fallo al conectar con el geoportal: ' + message + localProxyNote);
   }
 }
 
@@ -1854,6 +1867,11 @@ function saveGeoportalSettings(){
     alert('Ingrese el nombre de la capa WMS.');
     return;
   }
+  const validationError = validateGeoportalConnectivityOptions({ url, proxy });
+  if(validationError){
+    alert(validationError);
+    return;
+  }
 
   ADMIN_CONFIG.geoportal = {
     ...ADMIN_CONFIG.geoportal,
@@ -1909,6 +1927,11 @@ async function testGeoportalConnection(){
     alert('Ingrese el nombre de la capa WMS para probar la conexión.');
     return;
   }
+  const validationError = validateGeoportalConnectivityOptions({ url, proxy });
+  if(validationError){
+    alert(validationError);
+    return;
+  }
 
   const testUrl = buildGeoportalTestUrl({url, layerType, layerName});
   const authUrl = (username && password && typeof addBasicAuthToUrl === 'function') ? addBasicAuthToUrl(testUrl, username, password) : testUrl;
@@ -1933,6 +1956,9 @@ async function testGeoportalConnection(){
     alert('Conexión al geoportal verificada con éxito.');
   }catch(error){
     let detailedMessage = error.message || String(error);
+    if(error instanceof TypeError && /failed to fetch/i.test(detailedMessage)){
+      detailedMessage = 'No se pudo conectar al geoportal (Failed to fetch). Verifica que la URL sea HTTPS, que el servidor permita CORS y que el certificado SSL sea válido.';
+    }
     let proxyDetail = '';
     if(proxy){
       const proxyReachable = await isGeoportalProxyReachable(proxy);
@@ -1961,6 +1987,19 @@ function isLocalGeoportalProxy(proxy){
   }catch(e){
     return false;
   }
+}
+
+function validateGeoportalConnectivityOptions({ url, proxy }){
+  const secureSite = location.protocol === 'https:';
+  const isInsecureUrl = typeof url === 'string' && /^http:\/\//i.test(url);
+  const isInsecureProxy = typeof proxy === 'string' && /^http:\/\//i.test(proxy);
+  if(secureSite && isInsecureUrl){
+    return 'La URL del geoportal usa HTTP y esta aplicación se sirve por HTTPS. El navegador bloqueará la solicitud. Usa una URL HTTPS o un proxy HTTPS.';
+  }
+  if(secureSite && proxy && isInsecureProxy && !isLocalGeoportalProxy(proxy)){
+    return 'El proxy configurado usa HTTP y será bloqueado desde HTTPS. Usa un proxy HTTPS.';
+  }
+  return '';
 }
 
 function fillLocalGeoportalProxy(){

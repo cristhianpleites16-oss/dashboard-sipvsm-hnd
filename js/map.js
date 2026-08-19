@@ -94,7 +94,7 @@ function refreshCurrentMapLayer(){
   if(!MAP_INSTANCE) return;
   const activeLayer = CURRENT_MAP_LAYER || 'dark';
   if(TILE_LAYER) MAP_INSTANCE.removeLayer(TILE_LAYER);
-  const newLayer = createMapLayer(activeLayer);
+  let newLayer = createMapLayer(activeLayer);
   if(!newLayer){
     CURRENT_MAP_LAYER = 'dark';
     newLayer = L.tileLayer(MAP_LAYERS.dark,{attribution:'© OpenStreetMap',maxZoom:20});
@@ -284,9 +284,10 @@ async function populateGeoportalLayerList(force, prefix='map'){
       const capsUrl = (geo.url.includes('?') ? geo.url + '&' : geo.url + '?') + 'service=WMS&request=GetCapabilities&version=1.3.0';
       let resp = null;
       let text = null;
-      let usedProxy = !!geo.proxy;
-      const tryDirect = !geo.proxy;
-      const proxy = geo.proxy || 'http://127.0.0.1:5000/?url=';
+      const configuredProxy = geo.proxy || '';
+      const proxy = isLocalGeoportalProxy(configuredProxy) && !isLocalApp() ? '' : configuredProxy;
+      let usedProxy = !!proxy;
+      const tryDirect = !proxy;
 
       if(tryDirect){
         try{
@@ -324,7 +325,7 @@ async function populateGeoportalLayerList(force, prefix='map'){
           return `<label style="display:flex;align-items:center;gap:8px;cursor:pointer;"><input type="checkbox" name="geoportal-layer-checkbox" value="${esc(name)}"${checked}/> <span>${esc(name)}</span></label>`;
         }).join('');
         container.innerHTML = html;
-        if(usedProxy && !geo.proxy){
+        if(usedProxy && !configuredProxy){
           showMapStatus('Capas cargadas usando proxy local. Si el proxy no está ejecutándose, inicia node proxy.js en aris-test.');
         }
       }
@@ -406,7 +407,11 @@ function buildGeoportalOverlay(geo){
       return;
     }
     fallbackAttempted = true;
-    const fallbackProxy = typeof getDefaultLocalGeoportalProxy === 'function' ? getDefaultLocalGeoportalProxy() : 'http://127.0.0.1:5000/?url=';
+    const fallbackProxy = typeof getDefaultLocalGeoportalProxy === 'function' ? getDefaultLocalGeoportalProxy() : '';
+    if(!fallbackProxy){
+      showMapStatus('El geoportal requiere CORS habilitado o un proxy público HTTPS.');
+      return;
+    }
     showMapStatus('Error cargando la capa geoportal. Reintentando con proxy local...');
     const fallbackLayer = buildGeoportalOverlay({...geo, proxy: fallbackProxy});
     if(fallbackLayer && MAP_INSTANCE){

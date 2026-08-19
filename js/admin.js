@@ -1226,7 +1226,7 @@ function renderMapsSection(){
           <div class="admin-field"><label>Atribución</label><input id="new-geo-layer-attribution" type="text" placeholder="Texto de atribución" value="${esc(geo.attribution||'© ICF Honduras')}"/></div>
           <div class="admin-field"><label>Usuario (opcional)</label><input id="new-geo-layer-username" type="text" placeholder="Usuario para autenticación" value="${esc(geo.username||'')}"/></div>
           <div class="admin-field"><label>Contraseña (opcional)</label><input id="new-geo-layer-password" type="password" placeholder="Contraseña para autenticación" value="${esc(geo.password||'')}"/></div>
-          <div class="admin-field"><label>Proxy CORS (opcional)</label><input id="new-geo-layer-proxy" type="text" placeholder="https://mi-proxy.com/?url=" value="${esc(geo.proxy||'http://127.0.0.1:5000/?url=')}"/></div>
+          <div class="admin-field"><label>Proxy CORS (opcional)</label><input id="new-geo-layer-proxy" type="text" placeholder="https://mi-proxy.com/?url=" value="${esc(geo.proxy||getDefaultLocalGeoportalProxy())}"/></div>
           <div class="admin-actions" style="gap:10px; margin-top:10px;">
             <button class="s-btn primary" onclick="saveNewGeoportalLayer()">Guardar capa</button>
             <button class="s-btn ghost" onclick="cancelNewGeoportalLayerForm()">Cancelar</button>
@@ -1246,7 +1246,7 @@ function renderMapsSection(){
           <div class="admin-field"><label>Atribución</label><input id="admin-geo-attribution" type="text" value="${esc(geo.attribution||'© ICF Honduras')}" placeholder="Texto de atribución para el mapa"/></div>
           <div class="admin-field"><label>Usuario (opcional)</label><input id="admin-geo-username" type="text" value="${esc(geo.username||'')}" placeholder="Usuario para autenticación si aplica"/></div>
           <div class="admin-field"><label>Contraseña (opcional)</label><input id="admin-geo-password" type="password" value="${esc(geo.password||'')}" placeholder="Contraseña para autenticación si aplica"/></div>
-          <div class="admin-field"><label>Proxy CORS (opcional)</label><div style="display:flex;gap:8px;"><input id="admin-geo-proxy" type="text" value="${esc(geo.proxy||'http://127.0.0.1:5000/?url=')}" placeholder="https://mi-proxy.com/?url=" style="flex:1;"/><button class="s-btn ghost small" onclick="fillLocalGeoportalProxy()">Usar proxy local</button></div></div>
+          <div class="admin-field"><label>Proxy CORS (opcional)</label><div style="display:flex;gap:8px;"><input id="admin-geo-proxy" type="text" value="${esc(geo.proxy||getDefaultLocalGeoportalProxy())}" placeholder="https://mi-proxy.com/?url=" style="flex:1;"/><button class="s-btn ghost small" onclick="fillLocalGeoportalProxy()">Usar proxy local</button></div></div>
           <div class="admin-actions" style="gap:10px; margin-top:10px;">
             <button class="s-btn primary" onclick="saveGeoportalSettings()">Guardar geoportal</button>
             <button class="s-btn ghost" onclick="testGeoportalConnection()">Probar conexión</button>
@@ -1583,7 +1583,7 @@ function saveNewGeoportalLayer(){
   const attribution = document.getElementById('new-geo-layer-attribution')?.value.trim() || '© ICF Honduras';
   const username = document.getElementById('new-geo-layer-username')?.value.trim() || '';
   const password = document.getElementById('new-geo-layer-password')?.value || '';
-  const proxy = document.getElementById('new-geo-layer-proxy')?.value.trim() || 'http://127.0.0.1:5000/?url=';
+  const proxy = document.getElementById('new-geo-layer-proxy')?.value.trim() || '';
   if(!name){
     alert('Ingrese el nombre de la capa.');
     return;
@@ -1796,7 +1796,7 @@ function saveGeoportalSettings(){
   const attribution = document.getElementById('admin-geo-attribution')?.value.trim() || '© ICF Honduras';
   const username = document.getElementById('admin-geo-username')?.value.trim() || '';
   const password = document.getElementById('admin-geo-password')?.value || '';
-  const proxy = document.getElementById('admin-geo-proxy')?.value.trim() || 'http://127.0.0.1:5000/?url=';
+  const proxy = document.getElementById('admin-geo-proxy')?.value.trim() || '';
 
   if(!url){
     alert('Ingrese la URL del geoportal.');
@@ -1900,7 +1900,19 @@ El proxy local no responde en ${proxy}. Inicia el proxy con: node proxy.js en la
 }
 
 function getDefaultLocalGeoportalProxy(){
-  return 'http://127.0.0.1:5000/?url=';
+  return isLocalApp() ? 'http://127.0.0.1:5000/?url=' : '';
+}
+
+function isLocalApp(){
+  return location.protocol === 'file:' || ['localhost','127.0.0.1'].includes(location.hostname);
+}
+
+function isLocalGeoportalProxy(proxy){
+  try{
+    return ['localhost','127.0.0.1'].includes(new URL(proxy).hostname);
+  }catch(e){
+    return false;
+  }
 }
 
 function fillLocalGeoportalProxy(){

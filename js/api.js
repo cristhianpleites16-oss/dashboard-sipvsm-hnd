@@ -6,7 +6,7 @@
 // Si se abre como archivo (file://) o desde un dominio propio, llama directo.
 function pUrl(url){
   if(location.protocol!=='file:'&&location.hostname==='localhost')
-    return `http://localhost:8765/proxy?url=${encodeURIComponent(url)}`;
+    return `http://127.0.0.1:5000/?url=${encodeURIComponent(url)}`;
   return url;
 }
 

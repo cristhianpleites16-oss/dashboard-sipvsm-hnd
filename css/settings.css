@@ -1,0 +1,10 @@
+#settings-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:8000;display:none;align-items:center;justify-content:center;}
+#settings-overlay.open{display:flex;}
+#settings-box{background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:28px;width:400px;max-width:95vw;}
+#settings-box h2{font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;color:var(--teal-light);margin-bottom:18px;}
+.setting-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.setting-row label{font-size:.8rem;color:var(--text-mid);}
+.setting-row input[type=range]{width:110px;accent-color:var(--teal);}
+.setting-row input[type=number],.setting-row select{background:var(--bg);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-size:.8rem;padding:4px 8px;width:90px;outline:none;}
+.setting-val{font-size:.75rem;color:var(--teal);min-width:30px;text-align:right;}
+#btn-settings-save{width:100%;margin-top:16px;background:var(--teal-dark);color:#fff;border:none;border-radius:7px;padding:9px;font-size:.85rem;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;}

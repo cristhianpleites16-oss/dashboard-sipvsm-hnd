@@ -1,0 +1,31 @@
+:root {
+  --teal:#0d9488; --teal-dark:#0f766e; --teal-light:#2dd4bf;
+  --green:#16a34a; --green-dark:#15803d;
+  --bg:#f4f7fb; --surface:rgba(255,255,255,.96); --surface2:#f8fbfe;
+  --border:rgba(15,23,42,.08); --border2:rgba(15,23,42,.12);
+  --text:#0f172a; --text-mid:#334155; --text-dim:#64748b;
+  --success:#10b981; --danger:#ef4444; --warning:#f59e0b;
+  --radius:14px; --shadow:0 16px 40px rgba(15,23,42,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background:linear-gradient(180deg,#f8fbfe 0%,#eef6fb 100%);color:var(--text);}
+
+/* LOADING */
+#loading{position:fixed;inset:0;z-index:500;background:rgba(13,31,30,.88);backdrop-filter:blur(4px);display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;}
+.spinner{width:34px;height:34px;border-radius:50%;border:3px solid var(--border2);border-top-color:var(--teal);animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+#loading p{font-size:.85rem;color:var(--text-mid);}
+
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(13,148,136,.28);border-radius:3px;}
+.leaflet-popup-content-wrapper{background:var(--surface)!important;border:1px solid var(--border)!important;border-radius:12px!important;color:var(--text)!important;box-shadow:var(--shadow)!important;}
+.leaflet-popup-tip{background:var(--surface)!important;}
+.pu-title{font-family:'Barlow Condensed',sans-serif;font-size:.88rem;color:var(--teal-dark);margin-bottom:5px;font-weight:700;}
+.pu-row{font-size:.73rem;color:var(--text-mid);margin-bottom:2px;}
+.pu-row strong{color:var(--text);}
+
+/* Utilidad genérica de botón usada en varios módulos */
+.hbtn{background:transparent;border:none;color:var(--text-mid);border-radius:999px;padding:8px 10px;font-size:.79rem;cursor:pointer;transition:color .2s,background .2s;font-family:'Barlow',sans-serif;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:6px;box-shadow:none;}
+.hbtn:hover{color:var(--teal-dark);background:rgba(13,148,136,.08);}
+.hbtn.active{color:var(--teal-dark);background:rgba(13,148,136,.12);}

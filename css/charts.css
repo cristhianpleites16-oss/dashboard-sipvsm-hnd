@@ -1,0 +1,24 @@
+#charts-panel{background:rgba(255,255,255,.72);border-left:1px solid rgba(148,163,184,.2);overflow-y:auto;display:flex;flex-direction:column;backdrop-filter:blur(12px);padding-top:0;border-radius:20px;}
+.chart-card{width:100%;box-sizing:border-box;margin:0 0 10px;padding:12px 13px;border:1px solid rgba(148,163,184,.16);border-radius:16px;background:rgba(255,255,255,.94);box-shadow:0 12px 30px rgba(15,23,42,.05);}
+.chart-card:first-child{margin-top:0;}
+.chart-card h3{font-family:'Barlow Condensed',sans-serif;font-size:.72rem;font-weight:700;color:var(--teal-dark);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;}
+.chart-wrap{position:relative;height:140px;}
+.chart-wrap.md{height:160px;}
+.dashboard-analytics{display:flex;flex-direction:column;gap:12px;}
+.analytics-stat-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;}
+.analytics-stat-card{padding:14px 16px;background:rgba(247,250,252,.95);border:1px solid rgba(148,163,184,.16);border-radius:16px;display:flex;flex-direction:column;gap:6px;}
+.analytics-stat-label{font-size:.72rem;color:var(--text-mid);text-transform:uppercase;letter-spacing:.08em;font-weight:700;}
+.analytics-stat-value{font-size:1.7rem;font-weight:700;color:var(--text);}
+.analytics-stat-change{font-size:.74rem;font-weight:600;}
+.analytics-stat-change.positive{color:#16a34a;}
+.analytics-stat-change.negative{color:#dc2626;}
+.analytics-stat-change.neutral{color:#475569;}
+.sample-analytics-card{padding:14px 16px;}
+.sample-legend{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px;font-size:.8rem;color:var(--text-mid);}
+.sample-legend div{display:flex;align-items:center;gap:8px;}
+.sample-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:.85rem;color:var(--text-mid);}
+.sample-table td{padding:10px 8px;vertical-align:middle;border-top:1px solid rgba(148,163,184,.16);}
+.sample-table tr:first-child td{border-top:none;}
+.risk-tag{display:inline-flex;align-items:center;justify-content:center;padding:4px 9px;border-radius:999px;font-size:.72rem;font-weight:700;color:#fff;}
+.risk-tag.high{background:#dc2626;}
+.risk-tag.medium{background:#f59e0b;}

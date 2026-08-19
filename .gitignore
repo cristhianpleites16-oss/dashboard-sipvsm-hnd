@@ -1,0 +1,14 @@
+# Local configuration and development files
+node_modules/
+.venv/
+.env
+.env.*
+!.env.example
+.vscode/
+.DS_Store
+Thumbs.db
+bg_area.jpg
+
+# Local runtime output
+npm-debug.log*
+*.log

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARIS · Gestión y Análisis Ambiental</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/login.css">
+<link rel="stylesheet" href="css/welcome.css">
+<link rel="stylesheet" href="css/header.css">
+<link rel="stylesheet" href="css/sidebar.css">
+<link rel="stylesheet" href="css/map.css">
+<link rel="stylesheet" href="css/charts.css">
+<link rel="stylesheet" href="css/table.css">
+<link rel="stylesheet" href="css/settings.css">
+<link rel="stylesheet" href="css/admin.css">
+<link rel="stylesheet" href="css/reports.css">
+</head>
+<body>
+<div id="login-screen">
+  <div id="login-bg"></div>
+  <div id="login-box">
+    <div class="login-brand"><img src="assets/logo-aris.svg" alt="Logo ARIS"></div>
+    <div class="login-title"><span>ARIS</span></div>
+    <div class="login-sub">Gestión y Análisis Ambiental</div>
+    <div class="cfg-label">Usuario</div>
+    <input class="cfg-input" id="cfg-username" type="text" placeholder="Nombre de usuario">
+    <div class="cfg-label">Contraseña</div>
+    <input class="cfg-input" id="cfg-password" type="password" placeholder="Contraseña">
+    <input id="cfg-url" type="hidden"><input id="cfg-days" type="hidden"><input id="cfg-regional" type="hidden">
+    <div class="cfg-note">La conexión EarthRanger se configura desde Administración.</div>
+    <button id="btn-connect" onclick="connect()">Ingresar al sistema</button>
+    <button class="s-btn ghost" onclick="showAdminAccessPanel()" style="margin-top:12px;">Administración</button>
+    <div id="admin-access-panel" style="display:none;margin-top:12px;">
+      <div class="cfg-label">Clave administrativa</div>
+      <input class="cfg-input" id="cfg-admin-code" type="password" placeholder="Clave para administración">
+      <button class="s-btn ghost" onclick="openAdminFromLogin()" style="margin-top:10px;">Ingresar a administración</button>
+    </div>
+    <div id="cfg-error"></div>
+  </div>
+</div>
+<div id="loading"><div class="spinner"></div><p id="loading-msg">Cargando datos...</p></div>
+
+<div id="welcome-screen">
+  <div class="wl-actions"><div class="wl-user-badge" id="current-user-name-welcome">Usuario: <strong>Invitado</strong></div><button class="wl-btn" onclick="logout()">Cerrar sesión</button></div>
+  <div class="wl-hero"><div class="wl-hero-copy"><div class="wl-title"><span>ARIS</span> · Gestión Ambiental</div><div class="wl-sub">Analítica ambiental conectada a EarthRanger para transformar reportes de campo en información operativa.</div></div></div>
+  <div class="wl-cards">
+    <button class="wl-card" onclick="openEnvironmentalSection('dashboard')"><div class="wl-card-head"><h4>Dashboard analítico</h4><span class="wl-card-chip">Dashboard</span></div><p>Consulta indicadores, gráficos, mapa y eventos.</p></button>
+    <button class="wl-card" onclick="openEnvironmentalSection('table')"><div class="wl-card-head"><h4>Tabla de eventos</h4><span class="wl-card-chip">Eventos</span></div><p>Consulta el detalle completo de cada registro.</p></button>
+    <button class="wl-card" onclick="openEnvironmentalSection('reports')"><div class="wl-card-head"><h4>Generación de informes</h4><span class="wl-card-chip">Informes</span></div><p>Crea informes con gráficos, tablas y exportaciones.</p></button>
+    <button class="wl-card" onclick="goToAdmin()"><div class="wl-card-head"><h4>Administración</h4><span class="wl-card-chip">Control</span></div><p>Configura EarthRanger, usuarios, sitios y mapas.</p></button>
+  </div>
+  <div id="wl-site-summary"></div>
+  <div class="wl-footer">ARIS · Gestión y Análisis Ambiental</div>
+</div>
+
+<div id="header">
+  <div class="hdr-left"><div class="hdr-logos"><img src="assets/logo-aris.svg" alt="ARIS"></div><div class="hdr-sep"></div><div class="hdr-title" onclick="goToWelcome()">ARIS · Gestión y Análisis Ambiental<small id="site-label">EarthRanger</small></div><div class="hdr-nav"><button class="hbtn" onclick="goToWelcome()">Inicio</button><button class="hbtn" onclick="goToDashboard()">Dashboard</button><button class="hbtn" onclick="openReports()">Informes</button><button class="hbtn" id="nav-admin" onclick="goToAdmin()" style="display:none">Administración</button></div></div>
+  <div class="hdr-right"><span id="last-upd"></span><div class="pill"><div class="dot" id="status-dot"></div><span id="status-text">Desconectado</span></div><button class="hbtn" onclick="loadData()">Actualizar</button><button class="hbtn" onclick="showSettings()">Ajustes</button><button id="toggle-table" class="hbtn" onclick="toggleTable()">Tabla</button><button class="hbtn" onclick="showLogin()">Reconectar</button></div>
+</div>
+
+<div id="map-only-screen" style="display:none"><div id="map-only-header"><div class="hdr-left"><div class="hdr-logos"><img src="assets/logo-aris.svg" alt="ARIS"></div><div class="hdr-title">ARIS · Mapa ambiental<small id="site-label">EarthRanger</small></div><div class="hdr-nav"><button class="hbtn" onclick="goToWelcome()">Inicio</button><button class="hbtn active" onclick="goToMap()">Mapa</button><button class="hbtn" onclick="goToDashboard()">Dashboard</button><button class="hbtn" onclick="openReports()">Informes</button></div></div></div><div id="map-only-body"><div id="map-sidebar"><div id="map-status-message">Cargando el mapa...</div><div id="map-sidebar-layers"></div><hr><div>Geoportal</div><div id="map-geoportal-status">Verificando configuración...</div><div id="map-geoportal-layers"></div><button class="s-btn ghost small" id="map-geoportal-refresh">Actualizar capas</button><hr><label><input type="checkbox" id="map-toggle-reports" checked> Mostrar puntos de reportes</label></div><div style="flex:1;position:relative"><div id="map-only"></div></div></div></div>
+
+<div id="settings-overlay"><div id="settings-box"><h2>Ajustes del dashboard</h2><div class="setting-row"><label>Altura de gráficos (px)</label><input type="range" id="s-chart-h" min="100" max="520" value="140" oninput="applySettings()"><span class="setting-val" id="s-chart-h-val">140</span></div><div class="setting-row"><label>Panel gráficos (px)</label><input type="range" id="s-panel-w" min="220" max="750" value="490" oninput="applySettings()"><span class="setting-val" id="s-panel-w-val">490</span></div><div class="setting-row"><label>Sidebar (px)</label><input type="range" id="s-sidebar-w" min="160" max="320" value="210" oninput="applySettings()"><span class="setting-val" id="s-sidebar-w-val">210</span></div><div class="setting-row"><label>Auto-refresh (min)</label><input type="number" id="s-refresh" min="5" max="120" value="30"></div><div class="setting-row"><button class="s-btn ghost" onclick="closeSettings()">Cerrar</button><button class="s-btn primary" onclick="closeSettings()">Guardar y cerrar</button></div></div></div>
+
+<div id="app"><div id="main"><div id="sidebar"><div><div class="s-title">Buscar</div><div class="search-wrap"><input type="text" id="search-input" placeholder="Buscar eventos..."></div></div><div><div class="s-title">Rango de fechas</div><div class="date-row"><input type="date" id="date-start"><input type="date" id="date-end"></div></div><div><div class="s-title">Categoría</div><div id="cat-list"></div></div><div><div class="s-title">Área / Sitio monitoreado</div><div class="search-wrap"><input type="text" id="site-filter" placeholder="Escribe un área o sitio..."></div></div><div><div class="s-title">Capas de mapa</div><div id="dashboard-map-sidebar-layers"></div></div><div><div class="s-title">Estado</div><label class="cat-item"><input type="checkbox" class="state-cb" value="active" checked> Activo</label><label class="cat-item"><input type="checkbox" class="state-cb" value="new" checked> Nuevo</label><label class="cat-item"><input type="checkbox" class="state-cb" value="resolved" checked> Resuelto</label></div><div><button class="s-btn primary" onclick="applyFilters()">Aplicar filtros</button><button class="s-btn ghost" onclick="clearFilters()">Limpiar</button></div></div><div id="dashboard-summary-bar"><div class="summary-card"><div class="summary-label">Eventos reportados</div><div class="summary-value" id="stat-total">0</div></div><div class="summary-card"><div class="summary-label">Patrullajes</div><div class="summary-value" id="stat-patrols">0</div></div><div class="summary-card"><div class="summary-label">Eventos con ubicación</div><div class="summary-value" id="stat-registered">0</div></div><div class="summary-card"><div class="summary-label">Categorías usadas</div><div class="summary-value" id="stat-cats">0</div></div><div class="summary-card"><div class="summary-label">Áreas monitoreadas</div><div class="summary-value" id="stat-areas">0</div></div><div class="summary-card"><div class="summary-label">Reporteros únicos</div><div class="summary-value" id="stat-reporters">0</div></div></div><div id="dashboard-map-slot"><div id="map-wrap"><div id="map"></div><div id="map-controls"><button class="map-btn" onclick="toggleMapMenu('layers')">Capas de mapa</button><button class="map-btn active" onclick="toggleMapMenu('legend')">Simbología</button><div id="layer-menu" class="map-menu"><button class="map-btn active" onclick="setLayer('dark')">Oscuro</button><button class="map-btn" onclick="setLayer('satellite')">Satélite</button><button class="map-btn" onclick="setLayer('topo')">Topográfico</button><button class="map-btn" onclick="setLayer('streets')">Calles</button><button class="map-btn" onclick="setLayer('geoportal')">Geoportal</button></div></div><div id="map-count">Cargando...</div><div id="map-legend"><h4>Categorías</h4><div id="legend-items"></div></div></div></div><div id="charts-panel"><div class="chart-card"><h3>Por categoría</h3><div class="chart-wrap md"><canvas id="pie-chart"></canvas></div></div><div class="chart-card"><h3>Eventos por fecha</h3><div class="chart-wrap"><canvas id="bar-chart"></canvas></div></div><div class="chart-card"><h3>Por tipo de evento</h3><div class="chart-wrap"><canvas id="types-chart"></canvas></div></div><div class="chart-card"><h3>Patrullajes por tipo</h3><div class="chart-wrap"><canvas id="pat-chart"></canvas></div></div><div class="chart-card"><h3>Tendencia acumulada</h3><div class="chart-wrap"><canvas id="line-chart"></canvas></div></div></div><div id="table-panel"><div class="tbl-header"><span>EVENTOS · <span id="tbl-count"></span></span><button class="tbl-close" onclick="toggleTable()">Cerrar</button></div><div id="tbl-wrap"><table id="events-table"><thead><tr><th>Fecha</th><th>Categoría</th><th>Tipo</th><th>Título</th><th>Prioridad</th><th>Estado</th><th>Reportado por</th><th>Coords</th></tr></thead><tbody id="table-body"></tbody></table></div></div></div></div>
+
+<div id="reports-screen"><div id="reports-header"><span class="r-title">Generación de informes ambientales</span><button class="hbtn" onclick="goToDashboard()">Cerrar</button></div><div id="reports-body"><div id="report-config"><div><div class="rc-label">Título del informe</div><input class="rc-input" id="rc-title" type="text" value="Informe de Monitoreo Ambiental"></div><div><div class="rc-label">Subtítulo / Regional</div><input class="rc-input" id="rc-subtitle" type="text" placeholder="Regional"></div><div><div class="rc-label">Rango de fechas</div><div class="date-row"><input class="rc-input" type="date" id="rc-date-start"><input class="rc-input" type="date" id="rc-date-end"></div></div><div><div class="rc-label">Secciones a incluir</div><label class="rc-section"><input type="checkbox" id="rc-sec-stats" checked> Resumen estadístico</label><label class="rc-section"><input type="checkbox" id="rc-sec-charts" checked> Gráficos</label></div><button class="s-btn primary" onclick="generateReportPreview()">Generar vista previa</button><div id="report-actions" style="display:none;flex-direction:column"><div class="rc-label">Exportar</div><button class="s-btn ghost" onclick="printReport()">Imprimir</button><button class="s-btn ghost" onclick="exportReportWord()">Descargar Word</button><button class="s-btn ghost" onclick="exportReportPDF()">Descargar PDF</button></div></div><div id="report-preview-wrap"><div id="report-empty">Configura el informe y genera una vista previa.</div><div id="report-preview"></div></div></div></div>
+
+<div id="admin-screen" class="admin-screen"><div class="admin-header"><span class="a-title">ARIS · Administración Ambiental</span><div class="admin-actions"><span id="user-role-badge" class="role-badge"></span><button class="hbtn" onclick="goToWelcome()">Volver a la interfaz</button></div></div><div class="admin-subheader"><div class="admin-subtitle">Configuración del módulo de Gestión y Análisis Ambiental</div></div><div class="admin-body"><div class="admin-sidebar"><div class="admin-sidebar-title">Administración</div><button id="admin-tab-environmental" class="a-tab" onclick="showAdminSection('environmental')">Resumen ambiental</button><button id="admin-tab-users" class="a-tab" onclick="showAdminSection('users')">Usuarios</button><button id="admin-tab-settings" class="a-tab" onclick="showAdminSection('settings')">Ajustes generales</button></div><div class="admin-content"><div class="admin-panel-main"><div id="admin-environmental-panel" class="admin-panel-section"></div><div id="admin-integration-panel" class="admin-panel-section" style="display:none"></div><div id="admin-reports-panel" class="admin-panel-section" style="display:none"></div><div id="admin-charts-panel" class="admin-panel-section" style="display:none"></div><div id="admin-maps-panel" class="admin-panel-section" style="display:none"></div><div id="admin-users-panel" class="admin-panel-section" style="display:none"></div><div id="admin-settings-panel" class="admin-panel-section" style="display:none"></div><div id="admin-projects-panel" style="display:none"></div><div id="admin-inventory-panel" style="display:none"></div></div><div id="admin-action-panel" class="admin-action-panel"></div></div></div><div class="admin-footer"><button id="admin-save-btn" class="s-btn primary" onclick="saveAdminSettings()">Guardar cambios</button></div></div>
+
+<div class="app-footer">ARIS · Gestión y Análisis Ambiental</div>
+<script src="js/state.js"></script><script src="js/utils.js"></script><script src="js/api.js"></script><script src="js/nav.js"></script><script src="js/login.js"></script><script src="js/welcome.js"></script><script src="js/settings.js"></script><script src="js/admin.js"></script><script src="js/sidebar.js"></script><script src="js/map.js"></script><script src="js/charts.js"></script><script src="js/table.js"></script><script src="js/reports.js"></script><script src="js/app.js"></script>
+</body>
+</html>

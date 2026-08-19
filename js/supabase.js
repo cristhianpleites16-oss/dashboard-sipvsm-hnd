@@ -7,6 +7,10 @@ const SUPABASE_CLIENT = window.supabase?.createClient
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
   : null;
 
+function isMissingProfilesTable(error){
+  return Boolean(error && ['42P01','PGRST205'].includes(error.code));
+}
+
 function isSupabaseConfigured(){
   return Boolean(SUPABASE_CLIENT);
 }
@@ -22,7 +26,7 @@ async function signInWithSharedAccount(identifier, password){
       .select('email,username,full_name,role,site,sections')
       .eq('username', value.toLowerCase())
       .maybeSingle();
-    if(profileResult.error && profileResult.error.code !== '42P01') throw profileResult.error;
+    if(profileResult.error && !isMissingProfilesTable(profileResult.error)) throw profileResult.error;
     profile = profileResult.data || null;
     email = profile?.email || '';
   }
@@ -35,6 +39,6 @@ async function signInWithSharedAccount(identifier, password){
     .select('email,username,full_name,role,site,sections')
     .eq('id', user.id)
     .maybeSingle();
-  if(profileResult.error && profileResult.error.code !== '42P01') throw profileResult.error;
+  if(profileResult.error && !isMissingProfilesTable(profileResult.error)) throw profileResult.error;
   return {user, profile: profileResult.data || profile || {email:user.email, username:identifier}};
 }

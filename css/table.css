@@ -1,12 +1,12 @@
-#table-panel{display:none;position:absolute;inset:0;left:210px;background:rgba(255,255,255,.94);z-index:100;flex-direction:column;border-left:1px solid rgba(148,163,184,.16);box-shadow:-8px 0 24px rgba(15,23,42,.04);}
+#table-panel{display:none;position:absolute;inset:0;left:210px;background:var(--surface);z-index:100;flex-direction:column;border-left:1px solid var(--border);box-shadow:-8px 0 24px rgba(0,0,0,.28);}
 #table-panel.visible{display:flex;}
-.tbl-header{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:1px solid rgba(148,163,184,.16);flex-shrink:0;background:rgba(255,255,255,.9);}
-.tbl-header span{font-family:'Barlow Condensed',sans-serif;font-size:.82rem;color:var(--teal-dark);font-weight:700;letter-spacing:.08em;}
+.tbl-header{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--surface2);}
+.tbl-header span{font-family:'Barlow Condensed',sans-serif;font-size:.82rem;color:var(--teal);font-weight:700;letter-spacing:.08em;}
 .tbl-close{background:transparent;border:none;color:var(--text-dim);border-radius:0;padding:4px 0;cursor:pointer;font-size:.72rem;font-weight:600;}
 #tbl-wrap{overflow-y:auto;flex:1;}
 #events-table{width:100%;border-collapse:collapse;font-size:.76rem;}
-#events-table th{text-align:left;padding:7px 11px;background:rgba(248,250,252,.95);color:var(--text-dim);font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid rgba(148,163,184,.14);position:sticky;top:0;z-index:10;}
-#events-table td{padding:7px 11px;border-bottom:1px solid rgba(148,163,184,.12);color:var(--text-mid);vertical-align:middle;}
-#events-table tr:hover td{background:rgba(13,148,136,.04);} 
+#events-table th{text-align:left;padding:7px 11px;background:var(--surface2);color:var(--text-dim);font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10;}
+#events-table td{padding:7px 11px;border-bottom:1px solid var(--border);color:var(--text-mid);vertical-align:middle;}
+#events-table tr:hover td{background:rgba(255,255,255,.06);} 
 .badge{display:inline-block;padding:2px 7px;border-radius:9px;font-size:.65rem;font-weight:600;}
 #toggle-table.table-active{background:linear-gradient(135deg,var(--teal-dark),var(--teal));border-color:var(--teal);color:#fff;}

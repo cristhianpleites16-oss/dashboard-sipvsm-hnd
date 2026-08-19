@@ -1,14 +1,14 @@
 :root {
-  --teal:#0d9488; --teal-dark:#0f766e; --teal-light:#2dd4bf;
-  --green:#16a34a; --green-dark:#15803d;
-  --bg:#f4f7fb; --surface:rgba(255,255,255,.96); --surface2:#f8fbfe;
-  --border:rgba(15,23,42,.08); --border2:rgba(15,23,42,.12);
-  --text:#0f172a; --text-mid:#334155; --text-dim:#64748b;
+  --teal:#0f766e; --teal-dark:#134e4a; --teal-light:#14b8a6;
+  --green:#059669; --green-dark:#047857;
+  --bg:#0f172a; --surface:#1e293b; --surface2:#334155;
+  --border:#475569; --border2:#64748b;
+  --text:#f1f5f9; --text-mid:#cbd5e1; --text-dim:#94a3b8;
   --success:#10b981; --danger:#ef4444; --warning:#f59e0b;
-  --radius:14px; --shadow:0 16px 40px rgba(15,23,42,.08);
+  --radius:14px; --shadow:0 16px 40px rgba(0,0,0,.45);
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background:linear-gradient(180deg,#f8fbfe 0%,#eef6fb 100%);color:var(--text);}
+html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);}
 
 /* LOADING */
 #loading{position:fixed;inset:0;z-index:500;background:rgba(13,31,30,.88);backdrop-filter:blur(4px);display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;}
@@ -18,7 +18,7 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
 
 ::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-track{background:transparent;}
-::-webkit-scrollbar-thumb{background:rgba(13,148,136,.28);border-radius:3px;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
 .leaflet-popup-content-wrapper{background:var(--surface)!important;border:1px solid var(--border)!important;border-radius:12px!important;color:var(--text)!important;box-shadow:var(--shadow)!important;}
 .leaflet-popup-tip{background:var(--surface)!important;}
 .pu-title{font-family:'Barlow Condensed',sans-serif;font-size:.88rem;color:var(--teal-dark);margin-bottom:5px;font-weight:700;}
@@ -27,5 +27,5 @@ html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background
 
 /* Utilidad genérica de botón usada en varios módulos */
 .hbtn{background:transparent;border:none;color:var(--text-mid);border-radius:999px;padding:8px 10px;font-size:.79rem;cursor:pointer;transition:color .2s,background .2s;font-family:'Barlow',sans-serif;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:6px;box-shadow:none;}
-.hbtn:hover{color:var(--teal-dark);background:rgba(13,148,136,.08);}
-.hbtn.active{color:var(--teal-dark);background:rgba(13,148,136,.12);}
+.hbtn:hover{color:var(--teal-light);background:rgba(255,255,255,.08);}
+.hbtn.active{color:var(--teal-light);background:rgba(255,255,255,.12);}

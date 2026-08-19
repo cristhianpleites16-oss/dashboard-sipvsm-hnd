@@ -21,14 +21,12 @@ async function signInWithSharedAccount(identifier, password){
   let email = value;
   let profile = null;
   if(!value.includes('@')){
-    const profileResult = await SUPABASE_CLIENT
-      .from('profiles')
-      .select('email,username,full_name,role,site,sections')
-      .eq('username', value.toLowerCase())
-      .maybeSingle();
-    if(profileResult.error && !isMissingProfilesTable(profileResult.error)) throw profileResult.error;
-    profile = profileResult.data || null;
-    email = profile?.email || '';
+    const emailResult = await SUPABASE_CLIENT.rpc('find_auth_email_by_username', {p_username:value});
+    if(emailResult.error){
+      if(isMissingProfilesTable(emailResult.error) || emailResult.error.code === '42883') return null;
+      throw emailResult.error;
+    }
+    email = emailResult.data || '';
   }
   if(!email) return null;
   const result = await SUPABASE_CLIENT.auth.signInWithPassword({email, password});

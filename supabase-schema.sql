@@ -136,3 +136,18 @@ begin
   end if;
 end;
 $$;
+
+create or replace function public.find_auth_email_by_username(p_username text)
+returns text
+language sql
+security definer
+set search_path = public
+as $$
+  select email
+  from public.profiles
+  where lower(username) = lower(trim(p_username))
+  limit 1;
+$$;
+
+revoke all on function public.find_auth_email_by_username(text) from public;
+grant execute on function public.find_auth_email_by_username(text) to anon, authenticated;

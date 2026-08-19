@@ -33,11 +33,38 @@ const CAT_MAP = {
   'gestion tecnica de incidentes':'Gestión Técnica de Incidentes',
 };
 const CAT_COLORS = {
+  'Sitio Importancia Para la Vida Silvestre Marina (SIPVSM)':'#2a9d8f',
   'Monitoreo Biológico':'#52b788',
   'Monitoreo de Amenazas':'#e76f51',
   'Monitoreo de Actividades':'#e9c46a',
   'Gestión Técnica de Incidentes':'#4895ef',
 };
+const REPORT_FILTER_GROUPS = [
+  {
+    category:'Sitio Importancia Para la Vida Silvestre Marina (SIPVSM)',
+    reports:[
+      'Entrevista a pescador de pequeña escala',
+      'Evento Comunitario',
+      'Investigacion Marina',
+      'Actividades Recreativas',
+      'Anclaje o Transito de Embarcaciones',
+      'Avistamiento de Fauna Marina',
+      'Monitoreo de Boyas',
+      'Actividades en Mangle 2.0'
+    ]
+  },
+  {
+    category:'Monitoreo de Amenazas',
+    reports:[
+      'CC Inicio rápido',
+      'Daño mecanico pastos marinos 2.0',
+      'Daño mecanico arrecifes 2.0',
+      'Rellenos zonas costeras 2.0',
+      'Muelle/embarcadero 2.0',
+      'Desechos Sólidos'
+    ]
+  }
+];
 const DATA_SOURCE_OPTIONS = ['Todas','EarthRanger','KoboToolbox'];
 const DEPARTMENT_OPTIONS = ['Todos','Colón','Atlántida','Cortés'];
 const MUNICIPALITY_OPTIONS = {

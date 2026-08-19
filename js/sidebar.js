@@ -4,7 +4,8 @@
 function buildCatList(){
   const counts={};
   ALL_EVENTS.forEach(e=>{ const c=mapCat(e); counts[c]=(counts[c]||0)+1; });
-  const cats=Object.keys(counts).sort();
+  const catalogCategories = (REPORT_FILTER_GROUPS || []).map(group=>group.category);
+  const cats=[...new Set([...Object.keys(counts), ...catalogCategories])].sort();
   document.getElementById('cat-list').innerHTML=cats.map(c=>`
     <label class="cat-item">
       <input type="checkbox" class="cat-cb" value="${esc(c)}" checked>
@@ -35,6 +36,7 @@ function ensureGeographicFilterControls(){
   const block = document.createElement('div');
   block.innerHTML = `
     <div><div class="s-title">Fuente de datos</div><select id="filter-source"></select></div>
+    <div><div class="s-title">Reporte / Formulario</div><select id="filter-report"></select></div>
     <div><div class="s-title">Departamento</div><select id="filter-department"></select></div>
     <div><div class="s-title">Municipio costero</div><select id="filter-municipality"></select></div>
     <div><div class="s-title">SIPVSM</div><select id="filter-sipvsm"></select></div>`;
@@ -50,12 +52,14 @@ function applyFilters(){
   const siteText=document.getElementById('site-filter')?.value.trim() || '';
   const cks=[...document.querySelectorAll('.cat-cb:checked')].map(cb=>cb.value);
   const source=document.getElementById('filter-source')?.value || 'Todas';
+  const report=document.getElementById('filter-report')?.value || 'Todos';
   const department=document.getElementById('filter-department')?.value || 'Todos';
   const municipality=document.getElementById('filter-municipality')?.value || 'Todos';
   const sipvsm=document.getElementById('filter-sipvsm')?.value || 'Todos';
   FILTERED_EVENTS=ALL_EVENTS.filter(e=>{
     if(!cks.includes(mapCat(e))) return false;
     if(source!=='Todas' && getEventDataSource(e)!==source) return false;
+    if(!eventMatchesReportFilter(e, report)) return false;
     if(department!=='Todos' && getEventDepartment(e)!==department) return false;
     if(municipality!=='Todos' && normalizeSiteValue(getEventMunicipality(e))!==normalizeSiteValue(municipality)) return false;
     if(sipvsm!=='Todos' && getEventSIPVSM(e)!==sipvsm) return false;
@@ -76,17 +80,30 @@ function clearFilters(){
   document.getElementById('date-start').value='';
   document.getElementById('date-end').value='';
   document.querySelectorAll('.cat-cb').forEach(cb=>cb.checked=true);
-  ['filter-source','filter-department','filter-municipality','filter-sipvsm'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value='Todos'; });
+  ['filter-report','filter-department','filter-municipality','filter-sipvsm'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value='Todos'; });
+  const source=document.getElementById('filter-source');
+  if(source) source.value='Todas';
   FILTERED_EVENTS=[...ALL_EVENTS]; renderAll();
+}
+
+function buildReportFilterOptionsMarkup(){
+  const groups = REPORT_FILTER_GROUPS || [];
+  const grouped = groups.map(group=>{
+    const options = (group.reports || []).map(report=>`<option value="${esc(report)}">${esc(report)}</option>`).join('');
+    return `<optgroup label="${esc(group.category)}">${options}</optgroup>`;
+  }).join('');
+  return `<option value="Todos">Todos</option>${grouped}`;
 }
 
 function buildGeographicFilterOptions(){
   ensureGeographicFilterControls();
   const source = document.getElementById('filter-source');
+  const report = document.getElementById('filter-report');
   const department = document.getElementById('filter-department');
   const municipality = document.getElementById('filter-municipality');
   const sipvsm = document.getElementById('filter-sipvsm');
   if(source && !source.options.length) source.innerHTML=DATA_SOURCE_OPTIONS.map(value=>`<option value="${esc(value)}">${esc(value)}</option>`).join('');
+  if(report && !report.options.length) report.innerHTML = buildReportFilterOptionsMarkup();
   if(department && !department.options.length) department.innerHTML=DEPARTMENT_OPTIONS.map(value=>`<option value="${esc(value)}">${esc(value)}</option>`).join('');
   if(sipvsm && !sipvsm.options.length) sipvsm.innerHTML=SIPVSM_OPTIONS.map(value=>`<option value="${esc(value)}">${esc(value)}</option>`).join('');
   if(municipality){

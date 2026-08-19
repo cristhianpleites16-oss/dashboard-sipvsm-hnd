@@ -6,7 +6,60 @@ function esc(s){ if(!s)return''; return String(s).replace(/&/g,'&amp;').replace(
 function setLoading(on,msg){ document.getElementById('loading').style.display=on?'flex':'none'; if(msg)document.getElementById('loading-msg').textContent=msg; }
 function setStatus(ok,txt){ document.getElementById('status-dot').className='dot'+(ok?' on':''); document.getElementById('status-text').textContent=txt; }
 
+function getReportCatalogLookup(){
+  const rows=[];
+  (REPORT_FILTER_GROUPS || []).forEach(group=>{
+    (group.reports || []).forEach(report=>{
+      rows.push({ category:group.category, report, normalized:normalizeSiteValue(report) });
+    });
+  });
+  return rows;
+}
+
+function getCatalogReportByValue(value){
+  const normalized = normalizeSiteValue(value);
+  if(!normalized) return null;
+  const match = getReportCatalogLookup().find(item=>item.normalized===normalized);
+  return match || null;
+}
+
+function getEventReportDefinition(e){
+  const directCandidates = [
+    e?.event_type_display,
+    e?.event_type,
+    e?.title,
+    e?.event_category
+  ];
+  const nestedCandidates = [
+    getEventField(e,['report_type','report_name','form_name','formulario','activity_type','tipo_reporte'])
+  ];
+  const candidates = [...directCandidates, ...nestedCandidates].filter(Boolean);
+  for(const candidate of candidates){
+    const found = getCatalogReportByValue(candidate);
+    if(found) return found;
+  }
+  return null;
+}
+
+function getEventReportName(e){
+  const catalog = getEventReportDefinition(e);
+  if(catalog) return catalog.report;
+  return e?.event_type_display || e?.event_type || 'Sin reporte';
+}
+
+function eventMatchesReportFilter(e, selectedReport){
+  if(!selectedReport || selectedReport==='Todos') return true;
+  const selected = getCatalogReportByValue(selectedReport);
+  const eventReport = getEventReportDefinition(e);
+  if(selected && eventReport){
+    return selected.normalized === eventReport.normalized;
+  }
+  return normalizeSiteValue(getEventReportName(e)) === normalizeSiteValue(selectedReport);
+}
+
 function mapCat(e){
+  const catalog = getEventReportDefinition(e);
+  if(catalog?.category) return catalog.category;
   const raw=(e.event_category||e.event_type||'').toLowerCase().trim();
   const disp=(e.event_type_display||'').toLowerCase().trim();
   return CAT_MAP[raw]||CAT_MAP[disp]||e.event_type_display||e.event_category||e.event_type||'Sin categoría';
